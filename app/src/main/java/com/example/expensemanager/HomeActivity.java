@@ -54,7 +54,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         incomeFragment = new IncomeFragment();
         expenseFragment = new ExpenseFragment();
 
-        setFragment(dashBoardFragment);
+
 
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
