@@ -9,6 +9,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
@@ -53,7 +54,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         dashBoardFragment = new DashBoardFragment();
         incomeFragment = new IncomeFragment();
         expenseFragment = new ExpenseFragment();
-
+        new DashBoardFragment();
 
 
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -62,19 +63,19 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 switch (item.getItemId()){
 
                     case R.id.dashboard:
-                        setFragment(dashBoardFragment);
+                        setFragment(new DashBoardFragment());
                         bottomNavigationView.setItemBackgroundResource(R.color.dashboard);
 
                         return true;
 
                     case R.id.income:
-                        setFragment(incomeFragment);
+                        setFragment(new IncomeFragment());
                         bottomNavigationView.setItemBackgroundResource(R.color.income);
 
                         return true;
 
                     case R.id.expense:
-                        setFragment(expenseFragment);
+                        setFragment(new ExpenseFragment());
                         bottomNavigationView.setItemBackgroundResource(R.color.expense);
 
                         return true;
@@ -91,11 +92,23 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void setFragment(Fragment fragment) {
-        FragmentTransaction fragmentTransaction=getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.main_frame,fragment);
-        fragmentTransaction.commit();
-    }
+        FragmentManager fragmentManager = null;
+        new FragmentManager() {
+            @NonNull
+            @Override
+            public FragmentTransaction beginTransaction() {
+                assert false;
+                fragmentManager.beginTransaction().replace(R.id.main_frame,
+                                fragment, null)
+                        .setReorderingAllowed(true)
+                        .addToBackStack(null)
+                        .commit();
+                return super.beginTransaction();
+            }
+  };
 
+
+}
     @Override
     public void onBackPressed() {
         DrawerLayout drawerLayout=findViewById(R.id.drawer_layout);
