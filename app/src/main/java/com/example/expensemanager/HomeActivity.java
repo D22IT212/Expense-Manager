@@ -40,7 +40,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         bottomNavigationView = findViewById(R.id.bottomNavigationbar);
         frameLayout = findViewById(R.id.main_frame);
 
-        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this,drawerLayout,toolbar,R.string.navigation_drawer_open,R.string.navigation_drawer_close
         );
