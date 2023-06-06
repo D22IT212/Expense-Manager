@@ -48,7 +48,7 @@ public class Data {
         this.date = date;
     }
 
-    public Data(int amount, String type, String note, String id, String date) {
+    public Data(int amount, String type, String note, String id, String s) {
         this.amount = amount;
         this.type = type;
         this.note = note;

@@ -14,6 +14,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -22,6 +23,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import org.w3c.dom.Text;
+
+import java.text.DateFormat;
+import java.util.Date;
+
+import Model.Data;
 
 
 public class DashBoardFragment extends Fragment {
@@ -109,6 +115,34 @@ public class DashBoardFragment extends Fragment {
 
             return myview;
     }
+//Floating button animation
+    private void ftAnimation(){
+        if (isOpen){
+            fab_income_btn.startAnimation(FadeClose);
+            fab_expense_btn.startAnimation(FadeClose);
+
+            fab_income_btn.setClickable(false);
+            fab_expense_btn.setClickable(false);
+
+            fab_income_text.startAnimation(FadeClose);
+            fab_expense_text.startAnimation(FadeClose);
+            fab_income_text.setClickable(false);
+            fab_expense_text.setClickable(false);
+            isOpen=false;
+        }else{
+            fab_income_btn.startAnimation(FadeOpen);
+            fab_expense_btn.startAnimation(FadeOpen);
+            fab_income_btn.setClickable(true);
+            fab_expense_btn.setClickable(true);
+
+            fab_income_text.startAnimation(FadeOpen);
+            fab_expense_text.startAnimation(FadeOpen);
+            fab_income_text.setClickable(true);
+            fab_expense_text.setClickable(true);
+            isOpen=true;
+        }
+    }
+
     private void addData(){
         //Fab button income
         fab_income_btn.setOnClickListener(new View.OnClickListener() {
@@ -120,7 +154,7 @@ public class DashBoardFragment extends Fragment {
         fab_expense_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                expenseDataInsert();
             }
         });
     }
@@ -130,6 +164,8 @@ public class DashBoardFragment extends Fragment {
         View myview = inflater.inflate(R.layout.custom_layout_for_insertdata,null);
         mydialog.setView(myview);
         AlertDialog dialog = mydialog.create();
+
+        dialog.setCancelable(false);
 
         EditText edtAmmount = myview.findViewById(R.id.amount_edt);
         EditText edtType = myview.findViewById(R.id.type_edt);
@@ -159,15 +195,94 @@ public class DashBoardFragment extends Fragment {
                     edtNote.setError("Required field..");
                     return;
                 }
+                String id = mIncomeDatabase.push().getKey();
+
+                String mDate = DateFormat.getDateInstance().format(new Date());
+
+                Data data = new Data(ourammountint,type,note,mDate,id);
+
+                mIncomeDatabase.child(id).setValue(data);
+                Toast.makeText(getActivity(),"DATA ADDED",Toast.LENGTH_SHORT).show();
+
+                ftAnimation();
+
+                dialog.dismiss();
             }
         });
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ftAnimation();
                 dialog.dismiss();
             }
         });
             dialog.show();
+
+    }
+
+    public void expenseDataInsert(){
+        AlertDialog.Builder mydialog = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater= LayoutInflater.from(getActivity());
+
+        View myview = inflater.inflate(R.layout.custom_layout_for_insertdata,null);
+        mydialog.setView(myview);
+
+        final AlertDialog dialog =mydialog.create();
+
+        dialog.setCancelable(false);
+
+        EditText amount = myview.findViewById(R.id.amount_edt);
+        EditText type = myview.findViewById(R.id.type_edt);
+        EditText note = myview.findViewById(R.id.note_edt);
+
+        Button btnSave = myview.findViewById(R.id.btnSave);
+        Button btnCancel = myview.findViewById(R.id.btnCancel);
+
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String tmType = type.getText().toString().trim();
+                String tmAmmount = amount.getText().toString().trim();
+                String tmNote = note.getText().toString().trim();
+
+
+                if (TextUtils.isEmpty(tmType)){
+                    type.setError("Required field..");
+                    return;
+                }
+                if (TextUtils.isEmpty(tmAmmount)){
+                    amount.setError("Required field..");
+                    return;
+                }
+                int inammount = Integer.parseInt(tmAmmount);
+
+                if (TextUtils.isEmpty(tmNote)){
+                    note.setError("Required field..");
+                    return;
+                }
+
+                String id = mExpenseDatabase.push().getKey();
+                String mdate= DateFormat.getDateInstance().format(new Date());
+
+                Data  data = new Data(inammount,tmType,tmNote,id,mdate);
+                mExpenseDatabase.child(id).setValue(data);
+                Toast.makeText(getActivity(),"DATA ADDED",Toast.LENGTH_SHORT).show();
+
+                ftAnimation();
+                dialog.dismiss();
+            }
+        });
+
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ftAnimation();
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+
+
 
     }
 }

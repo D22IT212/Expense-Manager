@@ -1,6 +1,8 @@
 package com.example.expensemanager;
 
-import static com.example.expensemanager.R.id.dashboard;
+import android.os.Bundle;
+import android.view.MenuItem;
+import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -12,16 +14,15 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.os.Bundle;
-import android.view.MenuItem;
-import android.widget.FrameLayout;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
 
-public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, NavigationBarView.OnItemSelectedListener {
     private BottomNavigationView bottomNavigationView;
     private FrameLayout frameLayout;
+//Added by sir
+    Fragment fragment;
 
     //Fragment
     private DashBoardFragment dashBoardFragment;
@@ -37,19 +38,23 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         toolbar.setTitle("Expense Manager");
         setSupportActionBar(toolbar);
 
+        loadFragment(new DashBoardFragment());
+
         bottomNavigationView = findViewById(R.id.bottomNavigationbar);
-        frameLayout = findViewById(R.id.main_frame);
+        bottomNavigationView.setOnItemSelectedListener(this);
+        frameLayout = findViewById(R.id.dashboard);
 
 
-         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this,drawerLayout,toolbar,R.string.navigation_drawer_open,R.string.navigation_drawer_close
+                this, drawerLayout, toolbar, R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close
         );
 
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView=findViewById(R.id.naView);
+        NavigationView navigationView = findViewById(R.id.naView);
         navigationView.setNavigationItemSelectedListener(this);
 
         dashBoardFragment = new DashBoardFragment();
@@ -57,41 +62,38 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         expenseFragment = new ExpenseFragment();
         new DashBoardFragment();
 
+/*
 
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()){
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            switch (item.getItemId()) {
 
-                    case R.id.dashboard:
-                        setFragment(new DashBoardFragment());
-                        bottomNavigationView.setItemBackgroundResource(R.color.dashboard);
+                case R.id.dashboard:
+                    setFragment(new DashBoardFragment());
+                    bottomNavigationView.setItemBackgroundResource(R.color.dashboard);
 
-                        return true;
+                    return true;
 
-                    case R.id.income:
-                        setFragment(new IncomeFragment());
-                        bottomNavigationView.setItemBackgroundResource(R.color.income);
+                case R.id.income:
+                    setFragment(new IncomeFragment());
+                    bottomNavigationView.setItemBackgroundResource(R.color.income);
 
-                        return true;
+                    return true;
 
-                    case R.id.expense:
-                        setFragment(new ExpenseFragment());
-                        bottomNavigationView.setItemBackgroundResource(R.color.expense);
+                case R.id.expense:
+                    setFragment(new ExpenseFragment());
+                    bottomNavigationView.setItemBackgroundResource(R.color.expense);
 
-                        return true;
+                    return true;
 
-                    default:
-                        return false;
-                }
+                default:
+                    return false;
             }
         });
 
-
-
+*/
 
     }
-
+//method altered by sir
     private void setFragment(Fragment fragment) {
         FragmentManager fragmentManager = null;
         new FragmentManager() {
@@ -106,23 +108,24 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                         .commit();
                 return super.beginTransaction();
             }
-  };
+        };
 
 
-}
+    }
+
     @Override
     public void onBackPressed() {
-        DrawerLayout drawerLayout=findViewById(R.id.drawer_layout);
-        if (drawerLayout.isDrawerOpen(GravityCompat.END)){
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
             drawerLayout.closeDrawer(GravityCompat.END);
-        }else {
+        } else {
             super.onBackPressed();
         }
     }
-    public void displaySelectedListener(int itemId){
-        Fragment fragment = null;
 
-        switch (itemId){
+    public void displaySelectedListener(int itemId) {
+
+        switch (itemId) {
             case R.id.dashboard:
                 fragment = new DashBoardFragment();
                 break;
@@ -135,19 +138,39 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 fragment = new ExpenseFragment();
                 break;
         }
-        if (fragment!=null){
 
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.relativetry,fragment);
-            ft.commit();
+        if (fragment != null) {
+
+            loadFragment(fragment);
+//comments done by sir
+//            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//            ft.replace(R.id.relativetry, fragment);
+//            ft.commit();
         }
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         drawerLayout.closeDrawer(GravityCompat.START);
     }
+//new method created by sir
+    private boolean loadFragment(Fragment fragment) {
+        //switching fragment
+        if (fragment != null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.relativetry, fragment)
+                    .commit();
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        displaySelectedListener(item.getItemId()  );
+        displaySelectedListener(item.getItemId());
         return true;
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+        super.onPointerCaptureChanged(hasCapture);
     }
 }
