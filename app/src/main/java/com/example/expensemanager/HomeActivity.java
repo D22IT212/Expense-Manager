@@ -40,6 +40,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         bottomNavigationView = findViewById(R.id.bottomNavigationbar);
         frameLayout = findViewById(R.id.main_frame);
 
+
          DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this,drawerLayout,toolbar,R.string.navigation_drawer_open,R.string.navigation_drawer_close
@@ -98,7 +99,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public FragmentTransaction beginTransaction() {
                 assert false;
-                fragmentManager.beginTransaction().replace(R.id.main_frame,
+                fragmentManager.beginTransaction().replace(R.id.relativetry,
                                 fragment, null)
                         .setReorderingAllowed(true)
                         .addToBackStack(null)
@@ -137,7 +138,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         if (fragment!=null){
 
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.main_frame,fragment);
+            ft.replace(R.id.relativetry,fragment);
             ft.commit();
         }
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
