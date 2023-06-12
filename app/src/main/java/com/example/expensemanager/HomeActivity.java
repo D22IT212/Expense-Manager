@@ -1,5 +1,6 @@
 package com.example.expensemanager;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
@@ -17,10 +18,13 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, NavigationBarView.OnItemSelectedListener {
     private BottomNavigationView bottomNavigationView;
     private FrameLayout frameLayout;
+
+    private FirebaseAuth mAuth;
 //Added by sir
     Fragment fragment;
 
@@ -37,6 +41,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = findViewById(R.id.my_toolbar);
         toolbar.setTitle("Expense Manager");
         setSupportActionBar(toolbar);
+
+
+        mAuth=FirebaseAuth.getInstance();
 
         loadFragment(new DashBoardFragment());
 
@@ -136,6 +143,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.expense:
                 fragment = new ExpenseFragment();
+                break;
+
+            case R.id.logout:
+                mAuth.signOut();
+                startActivity(new Intent(getApplicationContext(),MainActivity.class));
                 break;
         }
 

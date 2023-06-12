@@ -1,5 +1,6 @@
 package com.example.expensemanager;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -20,6 +23,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.text.DateFormat;
+import java.util.Date;
 
 import Model.Data;
 
@@ -34,8 +40,24 @@ public class IncomeFragment extends Fragment {
     private RecyclerView recyclerView;
 
     //textview
-    private TextView incomTotalSum;
+    private TextView incomeTotalSum;
 
+    //Update edit text
+
+    private EditText edtAmount;
+    private EditText edtType;
+    private EditText edtNote;
+
+    //Button for update and delete
+
+    private Button btnUpdate;
+    private Button btnDelete;
+
+    //data item value
+    private String type;
+    private String note;
+    private int amount;
+    private String post_key;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -48,7 +70,7 @@ public class IncomeFragment extends Fragment {
 
         mIncomeDatabase= FirebaseDatabase.getInstance().getReference().child("INCOMEDATA").child(uid);
 
-        incomTotalSum=myview.findViewById(R.id.income_txt_result);
+        incomeTotalSum=myview.findViewById(R.id.income_txt_result);
 
         recyclerView=myview.findViewById(R.id.recycler_id_income);
 
@@ -67,7 +89,7 @@ public class IncomeFragment extends Fragment {
                     Data data=mysnapshot.getValue(Data.class);
                     totalValue+=data.getAmount();
                     String stTotalValue=String.valueOf(totalValue);
-                    incomTotalSum.setText(stTotalValue);
+                    incomeTotalSum.setText(stTotalValue+".00");
 
 
                 }
@@ -86,35 +108,53 @@ public class IncomeFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-
+       //firebase
         FirebaseRecyclerAdapter<Data,MyViewHolder>adapter;
-        adapter = new FirebaseRecyclerAdapter<Data,MyViewHolder>(){
+        adapter = new FirebaseRecyclerAdapter<Data, MyViewHolder>(){
 
             {
                 Data.class,
-                R.layout.income_recycler_data;
-                MyViewHolder.class;
-                mIncomeDatabase,
+                        R.layout.expense_recycler_data,
+                MyViewHolder.class,
+                        mIncomeDatabase
             }
-            @Override
-            protected void populateViewHolder(MyViewHolder viewHolder,Data model,int position){
+
+                @Override
+                protected void populateViewHolder(MyViewHolder viewHolder,Data model,int position){
                 viewHolder.setType(model.getType());
                 viewHolder.setNote(model.getNote());
                 viewHolder.setDate(model.getDate());
                 viewHolder.setAmmount(model.getAmount());
 
+                viewHolder.myview.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        post_key=  getRef(position).getKey();
+                        type= model.getType();
+                        note = model.getNote()  ;
+                        amount= model.getAmount();
+
+                        updateDataItem();
+                    }
+                });
+
             }
-        };
-        recyclerView.setAdapter(adapter);
-    }
+            };
+recyclerView.setAdapter(adapter);
+
+
+
+        }
     private static class MyViewHolder extends RecyclerView.ViewHolder{
 
         View myview;
         public MyViewHolder(@NonNull View itemView) {
+
             super(itemView);
         }
         private void setType(String type){
             TextView mType = myview.findViewById(R.id.type_txt_income);
+            mType.setText(type);
         }
         private void setNote(String note){
             TextView mNote=myview.findViewById(R.id.note_txt_income);
@@ -130,6 +170,67 @@ public class IncomeFragment extends Fragment {
             String stammount = String.valueOf(ammount);
             mAmmount.setText(stammount);
         }
+
+    }
+
+    private void updateDataItem(){
+        AlertDialog.Builder mydialog = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater=LayoutInflater.from(getActivity());
+
+        View myview = inflater.inflate(R.layout.updat_data_item, null);
+
+        mydialog.setView(myview);
+
+        //set data to edit text
+        edtType.setText(type);
+        edtType.setSelection(type.length());
+
+        edtNote.setText(note);
+        edtNote.setSelection(note.length());
+
+        edtAmount.setText(String.valueOf(amount));
+        edtAmount.setSelection(String.valueOf(amount).length());
+
+        edtAmount=myview.findViewById(R.id.amount_edt);
+        edtNote=myview.findViewById(R.id.note_edt);
+        edtType=myview.findViewById(R.id.type_edt);
+
+        btnUpdate=myview.findViewById(R.id.btn_upd_Update);
+        btnDelete=myview.findViewById(R.id.btnuPD_Delete);
+
+        AlertDialog dialog = mydialog.create();
+
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            type=edtType.getText().toString().trim();
+            note=edtNote.getText().toString().trim();
+
+            String mdamount =String.valueOf(amount);
+
+            mdamount=edtAmount.getText().toString().trim();
+
+            int myAmount= Integer.parseInt(mdamount);
+
+            String mDate= DateFormat.getDateInstance().format(new Date());
+
+            Data data=new Data(myAmount,type,note,post_key,mDate);
+
+            mIncomeDatabase.child(post_key).setValue(data);
+
+            dialog.dismiss();
+
+            }
+        });
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                mIncomeDatabase.child(post_key).removeValue();
+                dialog.dismiss();
+            }
+        });
+            dialog.show();
 
     }
 
