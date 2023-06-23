@@ -1,5 +1,6 @@
 package com.example.expensemanager;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.os.Bundle;
 
@@ -15,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -103,23 +105,20 @@ public class ExpenseFragment extends Fragment {
     public void onStart() {
         super.onStart();
       //firebase
-        FirebaseRecyclerAdapter<Data,MyViewHolder>adapter;
-        adapter = new FirebaseRecyclerAdapter<Data,MyViewHolder>(){
-
-            {
-                Data.class,
-                        R.layout.expense_recycler_data,
+        FirebaseRecyclerAdapter<Data,MyViewHolder> adapter = null;
+        
+        adapter=new FirebaseRecyclerAdapter<Data, MyViewHolder>( Data.class,
+                R.layout.expense_recycler_data,
                 MyViewHolder.class,
-                        mExpenseDatabase
-            }
+                mExpenseDatabase) {
             @Override
-            protected void populateViewHolder(MyViewHolder viewHolder, Data model, int position){
-                viewHolder.setType(model.getType());
-                viewHolder.setNote(model.getNote());
-                viewHolder.setDate(model.getDate());
-                viewHolder.setAmmount(model.getAmount());
-
-                viewHolder.myview.setOnClickListener(new View.OnClickListener() {
+            protected void onBindViewHolder(@NonNull MyViewHolder holder, @SuppressLint("RecyclerView") int position, @NonNull Data model) {
+                holder.setType(model.getType());
+                holder.setNote(model.getNote());
+                holder.setDate(model.getDate());
+                holder.setAmmount(model.getAmount());
+                
+                holder.myview.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         post_key=  getRef(position).getKey();
@@ -130,12 +129,18 @@ public class ExpenseFragment extends Fragment {
                         updateDataItem();
                     }
                 });
-
+                recyclerView.setAdapter(adapter);
+            }
+            
+            @NonNull
+            @Override
+            public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                return null;
             }
         };
-        recyclerView.setAdapter(adapter);
+        
+            }
 
-    }
 
     private static class MyViewHolder extends RecyclerView.ViewHolder {
 

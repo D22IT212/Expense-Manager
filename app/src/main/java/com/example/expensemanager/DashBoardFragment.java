@@ -34,7 +34,7 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import Model.Data;
-
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
 
 public class DashBoardFragment extends Fragment {
 
@@ -369,37 +369,49 @@ public class DashBoardFragment extends Fragment {
     public void onStart() {
         super.onStart();
 //3rd firebase word incomeAdapter
-        FirbaseRecylerAdapter<Data,IncomeViewHolder>incomeAdapter=new FirebaseRecylcerAdapter<Data,IncomeViewHolder>(
-                Data.class,
+        FirebaseRecyclerAdapter<Data,IncomeViewHolder>incomeAdapter;
+
+        incomeAdapter=new FirebaseRecyclerAdapter<Data, IncomeViewHolder>( Data.class,
                 R.layout.dashboard_income,
                 DashBoardFragment.IncomeViewHolder.class,
-                mIncomeDatabase
-        ){
+                mIncomeDatabase) {
             @Override
-            protected void populateViewHolder(IncomeViewHolder viewHolder,Data model,int position){
-                viewHolder.setmIncomeType(model.getType());
-                viewHolder.setmIncomeAmount(model.getAmount());
-                viewHolder.setmIncomeDate(model.getDate());
+            protected void onBindViewHolder(@NonNull IncomeViewHolder holder, int position, @NonNull Data model) {
+                holder.setmIncomeType(model.getType());
+                holder.setmIncomeAmount(model.getAmount());
+                holder.setmIncomeDate(model.getDate());
+                mRecyclerIncome.setAdapter(incomeAdapter);
+            }
+
+            @NonNull
+            @Override
+            public IncomeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                return null;
             }
         };
-        mRecyclerIncome.setAdapter(incomeAdapter);
-        FirebaseRecyclerAdapter<Data,ExpenseViewHolder>expenseAdapter=new FirebaseRecylcerAdapter<Data,ExpenseViewHolder>(
-                Data.class,
+
+        FirebaseRecyclerAdapter<Data,ExpenseViewHolder>expenseAdapter;
+
+        expenseAdapter=new FirebaseRecyclerAdapter<Data, ExpenseViewHolder>(Data.class,
                 R.layout.dashboard_expense,
                 DashBoardFragment.IncomeViewHolder.class,
-                mExpenseDatabase
-        ){
+                mExpenseDatabase) {
             @Override
-            protected void populateViewHolder(ExpenseViewHolder viewHolder,Data model,int position){
-                viewHolder.setExpenseDate(model.getDate());
-                viewHolder.setmExpeneType(model.getType());
-                viewHolder.setmExpenseAmount(model.getAmount());
+            protected void onBindViewHolder(@NonNull ExpenseViewHolder holder, int position, @NonNull Data model) {
+                holder.setExpenseDate(model.getDate());
+                holder.setmExpeneType(model.getType());
+                holder.setmExpenseAmount(model.getAmount());
+
+                mRecyclerExpense.setAdapter(expenseAdapter);
+
+            }
+
+            @NonNull
+            @Override
+            public ExpenseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                return null;
             }
         };
-        mRecyclerExpense.setAdapter(expenseAdapter);
-
-
-
     }
 
     //For income Data
