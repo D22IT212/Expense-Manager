@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -36,6 +37,7 @@ public class ExpenseFragment extends Fragment {
     private FirebaseAuth mAuth;
     private DatabaseReference mExpenseDatabase;
 
+    FirebaseRecyclerAdapter<Data,MyViewHolder> adapter = null;
     //Recycler View
     private RecyclerView recyclerView;
 
@@ -77,6 +79,49 @@ public class ExpenseFragment extends Fragment {
         layoutManager.setStackFromEnd(true);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
+
+        adapter=new FirebaseRecyclerAdapter<Data, MyViewHolder>(/*Data.class,
+                R.layout.income_recycler_data,
+                MyViewHolder.class,
+                mIncomeDatabase*/
+                new FirebaseRecyclerOptions.Builder<Data>()
+                        .setQuery(FirebaseDatabase.getInstance().getReference().child("EXPENSEDATA").child(uid), Data.class)
+                        .build()
+        ) {
+            @Override
+            protected void onBindViewHolder(@NonNull MyViewHolder holder, @SuppressLint("RecyclerView") int position, @NonNull Data model) {
+                holder.setType(model.getType());
+                holder.setNote(model.getNote());
+                holder.setDate(model.getDate());
+                holder.setAmmount(model.getAmount());
+
+                holder.myview.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        post_key=  getRef(position).getKey();
+                        type= model.getType();
+                        note = model.getNote()  ;
+                        amount= model.getAmount();
+
+                        updateDataItem();
+                    }
+                });
+
+            }
+
+            @NonNull
+            @Override
+            public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.expense_recycler_data, parent, false);
+
+                return new MyViewHolder(view);
+            }
+        };
+
+        adapter.startListening();
+
+        recyclerView.setAdapter(adapter);
         mExpenseDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -101,13 +146,11 @@ public class ExpenseFragment extends Fragment {
         return myview;
     }
 
-    @Override
+   /* @Override
     public void onStart() {
         super.onStart();
       //firebase
-        FirebaseRecyclerAdapter<Data,MyViewHolder> adapter = null;
-        
-        adapter=new FirebaseRecyclerAdapter<Data, MyViewHolder>( Data.class,
+        FirebaseRecyclerAdapter<Data,MyViewHolder> adapter =new FirebaseRecyclerAdapter<Data, MyViewHolder>( Data.class,
                 R.layout.expense_recycler_data,
                 MyViewHolder.class,
                 mExpenseDatabase) {
@@ -117,7 +160,7 @@ public class ExpenseFragment extends Fragment {
                 holder.setNote(model.getNote());
                 holder.setDate(model.getDate());
                 holder.setAmmount(model.getAmount());
-                
+
                 holder.myview.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -131,18 +174,18 @@ public class ExpenseFragment extends Fragment {
                 });
                 recyclerView.setAdapter(adapter);
             }
-            
+
             @NonNull
             @Override
             public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 return null;
             }
         };
-        
-            }
+
+            }*/
 
 
-    private static class MyViewHolder extends RecyclerView.ViewHolder {
+    protected static class MyViewHolder extends RecyclerView.ViewHolder {
 
         View myview;
 
